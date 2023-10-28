@@ -41,6 +41,8 @@ const checkTokenApp = async (req, res, next) => {
   const appCheckToken = req.headers['x-firebase-appcheck'];
   const referer = req.headers.origin;
 
+  console.log(referer);
+
   if (!appCheckToken || !referer) {
     res.status(401);
     return next('Unauthorized');
