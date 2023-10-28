@@ -23,7 +23,7 @@ app.use(
 app.use((req, res, next) => {
   res.setHeader(
     'Access-Control-Allow-Origin',
-    'https://cheery-mochi-5c1fe8.netlify.app/'
+    'https://cheery-mochi-5c1fe8.netlify.app'
   );
 
   res.setHeader(
@@ -48,7 +48,7 @@ const checkTokenApp = async (req, res, next) => {
     return next('Unauthorized');
   }
 
-  if (referer !== 'https://cheery-mochi-5c1fe8.netlify.app/') {
+  if (referer !== 'https://cheery-mochi-5c1fe8.netlify.app') {
     res.status(401);
     return next('Unauthorized');
   }
