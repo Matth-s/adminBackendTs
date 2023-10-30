@@ -12,8 +12,7 @@ async function verifyToken(token) {
       .verifyIdToken(cleanedToken);
     return decodedToken.uid === 'itlUt6nOAHd7FG5NvAn1gpykzf42';
   } catch (error) {
-    console.error('Erreur de vérification du token :', error);
-    return false;
+    return error;
   }
 }
 

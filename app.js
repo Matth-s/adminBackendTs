@@ -21,10 +21,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    'https://cheery-mochi-5c1fe8.netlify.app'
-  );
+  res.setHeader('Access-Control-Allow-Origin', 'https://cheery-mochi-5c1fe8.netlify.app');
 
   res.setHeader(
     'Access-Control-Allow-Headers',

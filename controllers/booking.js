@@ -95,6 +95,10 @@ exports.getAllData = async (req, res, next) => {
           pricePerDay: item.pricePerDay,
         }));
 
+        dataArray = dataArray.map((item) => {
+          return processArrays(item);
+        });
+
         return res.status(200).json(dataArray);
       } else {
         return res.status(200).json([]);
@@ -281,8 +285,6 @@ exports.updateBooking = async (req, res, next) => {
 
     encryptedBooking = processEmptyArraysOnCreate(encryptedBooking);
 
-    console.log(encryptedBooking);
-
     const database = admin.database();
     const bookingRef = database.ref('booking');
     const materialRef = database.ref('material');
@@ -308,7 +310,12 @@ exports.updateBooking = async (req, res, next) => {
         let materialData = snapshot.val();
 
         if (!materialData) {
-          res.status(404).json('Materiel introuvable');
+          try {
+            await bookingRef.child(id).set(encryptedBooking);
+            return res.status(200).json({ bookingRes: bookingBody });
+          } catch (error) {
+            return res.status(500).json({ message: error });
+          }
         }
 
         const MaterialDataValue = Object.values(materialData);
@@ -330,7 +337,7 @@ exports.updateBooking = async (req, res, next) => {
 
         await bookingRef.child(id).set(encryptedBooking);
 
-        processArraysMaterial(material);
+        material = processArraysMaterial(material);
 
         res
           .status(200)
@@ -360,83 +367,80 @@ exports.deleteBookingById = async (req, res, next) => {
     const bookingRef = database.ref('booking');
     const materialRef = database.ref('material');
 
-    bookingRef
+    const bookingSnapshot = await bookingRef
       .orderByChild('id')
       .equalTo(id)
-      .once('value', (snapshot) => {
-        const bookingData = snapshot.val();
+      .once('value');
+    const bookingData = bookingSnapshot.val();
 
-        if (!bookingData) {
-          return res.status(404).json('Réservation introuvable');
-        }
+    if (!bookingData) {
+      return res.status(404).json('Réservation introuvable');
+    }
 
-        const bookingDataValue = Object.values(bookingData);
-        const { idMaterial, unavailableDates } = bookingDataValue[0];
+    const bookingDataValue = Object.values(bookingData);
+    const { idMaterial, unavailableDates } = bookingDataValue[0];
 
-        materialRef
-          .orderByChild('id')
-          .equalTo(idMaterial)
-          .once('value', (snapshot) => {
-            const materialData = snapshot.val();
+    const materialSnapshot = await materialRef
+      .orderByChild('id')
+      .equalTo(idMaterial)
+      .once('value');
+    const materialData = materialSnapshot.val();
 
-            if (materialData) {
-              const materialValue = Object.values(materialData);
-              const material = materialValue[0];
+    if (materialData) {
+      const materialValue = Object.values(materialData);
+      let material = materialValue[0];
 
-              let filteredDates = material.unavailableDates.filter(
-                (date) => unavailableDates.includes(date)
-              );
+      material = {
+        ...material,
+        unavailableDates: unavailableDates.filter((date) =>
+          unavailableDates.includes(date)
+        ),
+      };
 
-              if (filteredDates.length === 0) {
-                filteredDates = ['emptyArray'];
-              }
+      if (material.unavailableDates.length === 0) {
+        material.unavailableDates = ['emptyArray'];
+      } else if (material.providedMaterials.length === 0) {
+        material.providedMaterials = ['emptyArray'];
+      } else if (material.arrayPicture.length === 0) {
+        material.arrayPicture = ['emptyArray'];
+      }
 
-              materialRef
-                .child(material.id)
-                .update(
-                  { unavailableDates: filteredDates },
-                  (error) => {
-                    if (error) {
-                      return res
-                        .status(500)
-                        .json(
-                          'Erreur lors de la mise à jour du matériel'
-                        );
-                    } else {
-                      res.status(200).json(material);
-                    }
-                  }
-                );
+      await materialRef.child(material.id).set(material);
 
-              bookingRef
-                .orderByChild('id')
-                .equalTo(id)
-                .once('value', (snapshot) => {
-                  const bookingData = snapshot.val();
+      const bookingSnapshotAgain = await bookingRef
+        .orderByChild('id')
+        .equalTo(id)
+        .once('value');
+      const bookingDataAgain = bookingSnapshotAgain.val();
 
-                  if (!bookingData) {
-                    return res
-                      .status(404)
-                      .json('Réservation introuvable');
-                  }
+      if (!bookingDataAgain) {
+        return res.status(404).json('Réservation introuvable');
+      }
 
-                  const bookingKey = Object.keys(bookingData)[0];
+      const bookingKey = Object.keys(bookingDataAgain)[0];
+      await bookingRef.child(bookingKey).remove();
 
-                  bookingRef.child(bookingKey).remove((error) => {
-                    if (error) {
-                      return res
-                        .status(500)
-                        .json('Erreur lors de la suppression');
-                    }
-                  });
-                });
-            } else {
-              return res.status(404).json('Matériel introuvable');
-            }
-          });
-      });
+      material = processArraysMaterial(material);
+
+      return res.status(200).json(material);
+    } else {
+      const bookingSnapshotYetAgain = await bookingRef
+        .orderByChild('id')
+        .equalTo(id)
+        .once('value');
+      const bookingDataYetAgain = bookingSnapshotYetAgain.val();
+
+      if (!bookingDataYetAgain) {
+        return res.status(404).json('Réservation introuvable');
+      }
+
+      const bookingKey = Object.keys(bookingDataYetAgain)[0];
+      await bookingRef.child(bookingKey).remove();
+
+      return res.status(200);
+    }
   } catch (error) {
-    res.status(500).json('Erreur interne du serveur');
+    return res.status(500).json('Erreur interne du serveur');
   }
 };
 

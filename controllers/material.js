@@ -205,6 +205,8 @@ exports.updateMaterialById = async (req, res, next) => {
 
       if (material.presentationPicture === '') {
         presentationPicture = downloadUrls[0].src;
+      } else if (material.presentationPicture.includes('https')) {
+        presentationPicture = material.presentationPicture;
       } else {
         presentationPicture =
           downloadUrls
