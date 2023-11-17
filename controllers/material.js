@@ -164,7 +164,8 @@ exports.createMaterial = async (req, res, next) => {
 
     return res.status(201).json(material);
   } catch (error) {
-    return res.status(500).json('Erreur interne du serveur');
+    
+    return res.status(500).json(error);
   }
 };
 
