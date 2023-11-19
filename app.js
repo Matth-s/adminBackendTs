@@ -7,6 +7,7 @@ const cors = require('cors');
 
 const MaterialRoute = require('./routes/material.js');
 const BookingRoute = require('./routes/booking.js');
+const messassingRoute = require('./routes/messassing.js');
 
 app.use(cors());
 
@@ -21,7 +22,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://cheery-mochi-5c1fe8.netlify.app');
+  res.setHeader('Access-Control-Allow-Origin', '*');
 
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -45,7 +46,9 @@ const checkTokenApp = async (req, res, next) => {
     return next('Unauthorized');
   }
 
-  if (referer !== 'https://cheery-mochi-5c1fe8.netlify.app') {
+  console.log(appCheckToken, referer);
+
+  if (referer !== 'http://localhost:3001') {
     res.status(401);
     return next('Unauthorized');
   }
@@ -62,7 +65,8 @@ const checkTokenApp = async (req, res, next) => {
 
 app.use(express.json());
 
-app.use('/api/material', checkTokenApp, MaterialRoute);
-app.use('/api/booking', checkTokenApp, BookingRoute);
+app.use('/api/material', /*checkTokenApp*/ MaterialRoute);
+app.use('/api/booking', /*checkTokenApp*/ BookingRoute);
+app.use('/api/messaging', /*checkTokenApp*/ messassingRoute);
 
 module.exports = app;

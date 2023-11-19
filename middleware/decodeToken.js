@@ -4,6 +4,7 @@ const admin = require('firebase-admin');
  * @param {string} token
  * @returns {boolean}
  */
+
 async function verifyToken(token) {
   const cleanedToken = token.replace('Bearer ', '');
   try {
