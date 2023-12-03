@@ -74,8 +74,6 @@ exports.getAllData = async (req, res, next) => {
       if (data) {
         let dataArray = Object.values(data).map((item) => ({
           ...item,
-          id: item.id,
-          idMaterial: item.idMaterial,
           street: decryptData(item.street),
           city: decryptData(item.city),
           email: decryptData(item.email),
@@ -351,6 +349,8 @@ exports.updateBooking = async (req, res, next) => {
 exports.deleteBookingById = async (req, res, next) => {
   const { id } = req.params;
   const { authorization } = req.headers;
+
+  console.log(authorization);
 
   if (!authorization) {
     return res.status(401).json('Unauthorized');

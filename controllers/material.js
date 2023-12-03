@@ -101,6 +101,8 @@ exports.getMaterialById = async (req, res, next) => {
 exports.searchByName = async (req, res, next) => {
   const { id } = req.params;
 
+  const nameFormat = id.replaceAll('-', '').toLowerCase();
+
   try {
     const database = admin.database();
     const ref = database.ref('material');
@@ -117,15 +119,15 @@ exports.searchByName = async (req, res, next) => {
 
         if (dataArray.length > 0) {
           const newData = dataArray.filter((item) =>
-            item.name.toLowerCase().includes(id.toLowerCase())
+            item.name.toLowerCase().includes(nameFormat)
           );
           return res.status(200).json(newData);
         }
 
-        res.status(200).json([]);
+        res.status(200).json(null);
       }
 
-      res.status(200).json([]);
+      res.status(200).json(null);
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -198,7 +200,6 @@ exports.createMaterial = async (req, res, next) => {
 
     return res.status(201).json(material);
   } catch (error) {
-    
     return res.status(500).json(error);
   }
 };
