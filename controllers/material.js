@@ -99,39 +99,44 @@ exports.getMaterialById = async (req, res, next) => {
 };
 
 exports.searchByName = async (req, res, next) => {
-  const { id } = req.params;
-
-  console.log(id, ' id');
-
-  const nameFormat = id.replaceAll('-', '').toLowerCase();
-
-  console.log(nameFormat, 'name format');
-
   try {
-    const database = admin.database();
+    const { id } = req.params;
+    console.log(id, ' id');
+
+    const nameFormat = id.replaceAll('-', '').toLowerCase();
+    console.log(nameFormat, 'name format');
+
+    const database = admin.database(); // Assuming admin is properly initialized
+
     const ref = database.ref('material');
 
     ref.once('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const dataArray = Object.values(data).map((material) => ({
-          ...material,
-          unavailableDates: processArray(material.unavailableDates),
-          providedMaterials: processArray(material.providedMaterials),
-          arrayPicture: processArray(material.arrayPicture),
-        }));
+      try {
+        const data = snapshot.val();
+        if (data) {
+          const dataArray = Object.values(data).map((material) => ({
+            ...material,
+            unavailableDates: processArray(material.unavailableDates),
+            providedMaterials: processArray(
+              material.providedMaterials
+            ),
+            arrayPicture: processArray(material.arrayPicture),
+          }));
 
-        if (dataArray.length > 0) {
-          const newData = dataArray.filter((item) =>
-            item.name.toLowerCase().includes(nameFormat)
-          );
-          return res.status(200).json(newData);
+          if (dataArray.length > 0) {
+            const newData = dataArray.filter((item) =>
+              item.name.toLowerCase().includes(nameFormat)
+            );
+            res.status(200).json(newData);
+          } else {
+            res.status(200).json(null);
+          }
+        } else {
+          res.status(200).json(null);
         }
-
-        res.status(200).json(null);
+      } catch (error) {
+        res.status(500).json({ error: error.message });
       }
-
-      res.status(200).json(null);
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
