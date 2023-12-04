@@ -101,6 +101,8 @@ exports.getMaterialById = async (req, res, next) => {
 exports.searchByName = async (req, res, next) => {
   const { id } = req.params;
 
+  console.log(id);
+
   const nameFormat = id.replaceAll('-', '').toLowerCase();
 
   try {

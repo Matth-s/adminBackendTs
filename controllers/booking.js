@@ -260,25 +260,14 @@ exports.updateBooking = async (req, res, next) => {
     }
 
     encryptedBooking = {
-      id: bookingBody.id,
-      idMaterial: bookingBody.idMaterial,
+      ...bookingBody,
       street: encryptData(bookingBody.street),
       city: encryptData(bookingBody.city),
       email: encryptData(bookingBody.email),
       firstName: encryptData(bookingBody.firstName),
       lastName: encryptData(bookingBody.lastName),
       phone: encryptData(bookingBody.phone),
-      bookingDates: bookingBody.bookingDates,
-      materialName: bookingBody.materialName,
-      downPayment: bookingBody.downPayment,
-      total: bookingBody.total,
-      isCompleted: bookingBody.isCompleted,
-      coachingPriceHour: bookingBody.coachingPriceHour,
-      coachingTime: bookingBody.coachingTime,
-      providedMaterialsBooking: bookingBody.providedMaterialsBooking,
-      unavailableDates: bookingBody.unavailableDates,
-      timestamp: bookingBody.timestamp,
-      pricePerDay: bookingBody.pricePerDay,
+      bookingDates: bookingBody.bookingDates, 
     };
 
     encryptedBooking = processEmptyArraysOnCreate(encryptedBooking);
