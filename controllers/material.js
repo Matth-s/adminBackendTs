@@ -102,7 +102,7 @@ exports.searchByName = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const nameFormat = id.replaceAll('-', ' ');
+    const nameFormat = id.replace(/-/g, ' ');
 
     const database = admin.database();
 
@@ -122,8 +122,8 @@ exports.searchByName = async (req, res, next) => {
           }));
 
           if (dataArray.length > 0) {
-            const newData = dataArray.filter((item) =>
-              item.name.toLowerCase().includes(nameFormat)
+            const newData = dataArray.filter(
+              (item) => item.name === nameFormat
             );
             res.status(200).json(newData);
           } else {
