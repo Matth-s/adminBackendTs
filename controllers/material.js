@@ -101,12 +101,10 @@ exports.getMaterialById = async (req, res, next) => {
 exports.searchByName = async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log(id, ' id');
 
-    const nameFormat = id.replaceAll('-', '').toLowerCase();
-    console.log(nameFormat, 'name format');
+    const nameFormat = id.replaceAll('-', ' ');
 
-    const database = admin.database(); // Assuming admin is properly initialized
+    const database = admin.database();
 
     const ref = database.ref('material');
 
