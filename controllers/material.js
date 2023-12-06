@@ -125,7 +125,7 @@ exports.searchByName = async (req, res, next) => {
 
           if (dataArray.length > 0) {
             const newData = dataArray.filter(
-              (item) => item.name === nameFormat
+              (item) => item.name.toLowerCase() === nameFormat
             );
             res.status(200).json(newData);
           } else {
