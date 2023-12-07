@@ -100,11 +100,8 @@ exports.getMaterialById = async (req, res, next) => {
 
 exports.searchByName = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    console.log(id);
+    const { id } = req.params; 
     const nameFormat = id.replace(/-/g, ' ').toLowerCase();
-
-    console.log(nameFormat);
 
     const database = admin.database();
 
@@ -123,17 +120,22 @@ exports.searchByName = async (req, res, next) => {
             arrayPicture: processArray(material.arrayPicture),
           }));
 
-          if (dataArray.length > 0) {
-            const newData = dataArray.filter(
+          if(dataArray.length === 0) {
+             return  res.status(200).json(null);
+          }
+
+          const findMaterial =  dataArray.filter(
               (item) => item.name.toLowerCase() === nameFormat
             );
-            res.status(200).json(newData);
-          } else {
-            res.status(200).json(null);
-          }
-        } else {
-          res.status(200).json(null);
-        }
+
+          if(findMaterial.length === 0) {
+          return res.status(404).json(null)
+          } 
+
+          return res.status(200).json(findMaterial[0])
+
+          
+        } 
       } catch (error) {
         res.status(500).json({ error: error.message });
       }
